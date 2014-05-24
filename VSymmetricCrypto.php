@@ -3,7 +3,8 @@
 /**
  * Wrapper class for authenticated encryption with symmetric/shared keys
  */
-abstract class VSymmetricCrypto {	
+abstract class VSymmetricCrypto
+{	
 	// Message-signature separator
 	const SEPARATOR = ':';
 	
@@ -24,8 +25,10 @@ abstract class VSymmetricCrypto {
 	 * Authenticate a message
 	 * @param string $message
 	 * @param string $aKey
+	 * @param boolean $encode [true]
 	 */
-	public static function authenticate($message, $aKey, $encode = true) {
+	public static function authenticate($message, $aKey, $encode = true)
+	{
 		if($encode) {
 			return base64_encode( hash_hmac(self::HASH_FUNC, $message, $aKey, true) );
 		}
@@ -37,15 +40,16 @@ abstract class VSymmetricCrypto {
 	 * 
 	 * @param string $plaintext
 	 * @param blob $eKey
-	 * @param blob $iv
 	 * @param blob $aKey
-	 * @param const $cipher
-	 * @param const $block_mode
-	 * @param const $padding
+	 * @param blob $iv [null]
+	 * @param const $cipher [VSymmetricCrypto::CIPHER_AES]
+	 * @param const $block_mode [VSymmetricCrypto::BLOCK_MODE_CBC]
+	 * @param const $padding [VSymmetricCrypto::PADDING_PKCS7]
 	 */
 	public static function encrypt($plaintext, $eKey, $aKey, $iv = null,
 		$cipher = self::CIPHER_AES, $block_mode = self::BLOCK_MODE_CBC,
-		$padding = self::PADDING_PKCS7) {
+		$padding = self::PADDING_PKCS7)
+	{
 		$message = self::encryptOnly($plaintext, $eKey, $iv, $cipher, $block_mode, $padding);
 		return $message .self::SEPARATOR . self::authenticate($message, $aKey);
 	}
@@ -54,14 +58,15 @@ abstract class VSymmetricCrypto {
 	 * 
 	 * @param string $plaintext
 	 * @param blob $eKey
-	 * @param blob $iv
-	 * @param const $cipher
-	 * @param const $block_mode
-	 * @param const $padding
+	 * @param blob $iv [null]
+	 * @param const $cipher [VSymmetricCrypto::CIPHER_AES]
+	 * @param const $block_mode [VSymmetricCrypto::BLOCK_MODE_CBC]
+	 * @param const $padding [VSymmetricCrypto::PADDING_PKCS7]
 	 */
 	public static function encryptOnly($plaintext, $eKey, $iv = null,
 		$cipher = self::CIPHER_AES, $block_mode = self::BLOCK_MODE_CBC,
-		$padding = self::PADDING_PKCS7) {
+		$padding = self::PADDING_PKCS7)
+	{
 		switch($cipher) {
 			case self::CIPHER_AES:
 				$block_size = 16;
@@ -105,13 +110,14 @@ abstract class VSymmetricCrypto {
 	 * @param string $ciphertext
 	 * @param string $eKey
 	 * @param string $aKey
-	 * @param string $cipher
-	 * @param string $block_mode
-	 * @param string $padding
+	 * @param string $cipher [VSymmetricCrypto::CIPHER_AES]
+	 * @param string $block_mode [VSymmetricCrypto::BLOCK_MODE_CBC]
+	 * @param string $padding [VSymmetricCrypto::PADDING_PKCS7]
 	 */
 	public static function decrypt($ciphertext, $eKey, $aKey,
 		$cipher = self::CIPHER_AES, $block_mode = self::BLOCK_MODE_CBC,
-		$padding = self::PADDING_PKCS7) {
+		$padding = self::PADDING_PKCS7)
+	{
 		if(self::verify( $ciphertext, $aKey )) {
 			return self::decryptOnly($ciphertext, $eKey, $cipher, $block_mode, $padding);
 		} else {
@@ -124,13 +130,14 @@ abstract class VSymmetricCrypto {
 	 * 
 	 * @param string $ciphertext
 	 * @param string $eKey
-	 * @param string $cipher
-	 * @param string $block_mode
-	 * @param string $padding
+	 * @param string $cipher [VSymmetricCrypto::CIPHER_AES]
+	 * @param string $block_mode [VSymmetricCrypto::BLOCK_MODE_CBC]
+	 * @param string $padding [VSymmetricCrypto::PADDING_PKCS7]
 	 */
 	public static function decryptOnly($ciphertext, $eKey,
 		$cipher = self::CIPHER_AES, $block_mode = self::BLOCK_MODE_CBC,
-		$padding = self::PADDING_PKCS7) {
+		$padding = self::PADDING_PKCS7)
+	{
 		list($iv, $message) = explode(self::SEPARATOR, $ciphertext);
 		
 		switch($cipher) {
@@ -156,10 +163,11 @@ abstract class VSymmetricCrypto {
 	}
 	/**
 	 * Get the raw underlying mode (currently mcrypt, can be swapped out later)
-	 * @param const $mode
+	 * @param const $mode [VSymmetricCrypto::BLOCK_MODE_CBC]
 	 * @return library const
 	 */
-	public static function blockMode($mode = self::BLOCK_MODE_CBC) {
+	public static function blockMode($mode = self::BLOCK_MODE_CBC)
+	{
 		switch($mode) {
 			case self::BLOCK_MODE_CBC:
 				if(defined('MCRYPT_MODE_CBC')) {
@@ -175,9 +183,10 @@ abstract class VSymmetricCrypto {
 	 * Verify the signature on an encrypted message
 	 * @param string $ciphertext
 	 * @param string $aKey
-	 * @param string $sig
+	 * @param string $sig [null]
 	 */
-	public static function verify($ciphertext, $aKey, $sig = null) {
+	public static function verify($ciphertext, $aKey, $sig = null)
+	{
 		if(!empty($sig)) {
 			throw new VSecureException("Anti-pattern detected. GTFO");
 		} else {
