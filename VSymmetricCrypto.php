@@ -72,12 +72,7 @@ abstract class VSymmetricCrypto {
 		switch($padding) {
 			case self::PADDING_PKCS7:
 				$l = strlen($plaintext) % $block_size;
-				if($l === 0) {
-					// Special case
-					$l = $block_size; 
-				} else {
-					$l = $block_size - $l;
-				}
+				$l = $block_size - $l;
 				$plaintext .= str_repeat(chr($l), $l);
 				break;
 			case self::PADDNG_NONE:
