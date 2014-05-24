@@ -89,17 +89,34 @@ abstract class VSymmetricCrypto
 		}
 		switch($cipher) {
 			case self::CIPHER_AES:
-				return base64_encode($iv) .
-					self::SEPARATOR .
-					base64_encode( 
-						mcrypt_encrypt(
-							MCRYPT_RIJNDAEL_128, 
-							$eKey,
-							$plaintext,
-							self::blockMode($block_mode),
-							$iv
-						)
-					);
+				if(function_exists('mcrypt_encrypt')) {
+					return base64_encode($iv) .
+						self::SEPARATOR .
+						base64_encode( 
+							mcrypt_encrypt(
+								MCRYPT_RIJNDAEL_128, 
+								$eKey,
+								$plaintext,
+								self::blockMode($block_mode),
+								$iv
+							)
+						);
+				} elseif(function_exists('openssl_encrypt')) {
+					return base64_encode($iv) .
+						self::SEPARATOR .
+						base64_encode(
+							openssl_encrypt(
+								$plaintext,
+								'aes-256-'.self::blockMode($block_mode),
+								$eKey,
+								1,
+								$iv
+							)
+						);
+				} else {
+					throw new VSecureException("Upgrade your PHP or install mcrypt, jackass!");
+				}
+				break;
 		}
 		// Still here? Sigh...
 		throw new VSecureException("Cipher not implemented!");
@@ -142,13 +159,25 @@ abstract class VSymmetricCrypto
 		
 		switch($cipher) {
 			case self::CIPHER_AES:
-				$plain = mcrypt_decrypt(
+				if(function_exists('mcrypt_decrypt')) {
+					$plain = mcrypt_decrypt(
 						MCRYPT_RIJNDAEL_128,
 						$eKey,
 						base64_decode($message),
 						self::blockMode($block_mode),
 						base64_decode($iv)
 					);
+				} elseif(function_exists('openssl_decrypt')) {
+					$plain = openssl_decrypt(
+							base64_decode($message),
+							'aes-256-'.self::blockMode($block_mode),
+							$eKey,
+							1,
+							base64_decode($iv)
+						);
+				} else {
+					throw new VSecureException("Upgrade your PHP or install mcrypt, jackass!");
+				}
 				break;
 			default:
 				throw new VSecureException("Cipher not implemented!");
@@ -172,6 +201,8 @@ abstract class VSymmetricCrypto
 			case self::BLOCK_MODE_CBC:
 				if(defined('MCRYPT_MODE_CBC')) {
 					return MCRYPT_MODE_CBC;
+				} elseif(function_exists('openssl_encrypt')) {
+					return 'cbc';
 				} else {
 					throw new VSecureException("Mcrypt not enabled!");
 				}
