@@ -27,4 +27,4 @@ If an attacker is able to compromise your database (e.g. through SQL Injection),
 
 If an attacker is able to compromise your webserver, it's game over. Not only can they read hashes and decrypt them with the key, they can also modify your login scripts to log usernames and their associated plaintext passwords somewhere for later retrieval. This library does not help you in the event of a webserver compromise.
 
-This library exists to make it more difficult to cross the gap between database compromise to offline password cracking, and does not make online attacking (e.g. guessing the top 10,000 most common passwords) difficult.
+This library exists to make it more difficult to cross the gap between database compromise to offline password cracking, and does not make online attacking (e.g. guessing the top 10,000 most common passwords) difficult. To prevent online attacks, you should employ some application-level rate-limiting and enforce strong password policies.
