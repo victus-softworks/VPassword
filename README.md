@@ -21,7 +21,7 @@ The process:
 
 ### Threat Model
 
-The benefit of a library is only present when your webserver and database are on separate hardware. Otherwise, you're just as well off using `scrypt` by itself.
+The benefit of this library is only present when your webserver and database are on separate hardware. Otherwise, you're just as well off using `scrypt` by itself.
 
 If an attacker is able to compromise your database (e.g. through SQL Injection), this library should inhibit their ability to recover password hashes, since the hashes themselves are encrypted with a key only known to the webserver. This library does not help you in the event of a webserver compromise.
 
